@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
-import { useMobile } from "@/hooks/use-mobile"
 
 const languages = [
   { code: "en", name: "English" },
@@ -30,7 +29,7 @@ export function Navbar() {
   const { theme, setTheme } = useTheme()
   const [showSearch, setShowSearch] = React.useState(false)
   const [currentLanguage, setCurrentLanguage] = React.useState("en")
-  const isMobile = useMobile()
+
   const searchRef = React.useRef<HTMLDivElement>(null)
 
   // Toggle theme directly between light and dark

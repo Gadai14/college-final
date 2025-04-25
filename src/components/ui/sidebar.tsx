@@ -22,14 +22,13 @@ const sidebarVariants = cva(
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "transparent"
   open?: boolean
-  onOpenChange?: (open: boolean) => void
 }
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
-  ({ className, variant, open = false, onOpenChange, ...props }, ref) => {
+  ({ className, variant, open = false, ...props }) => {
     return (
       <div
-        ref={ref}
+        
         className={cn(
           sidebarVariants({ variant }),
           open ? "translate-x-0" : "-translate-x-full sm:translate-x-0",
@@ -110,22 +109,45 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 }
 
 const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
-  ({ className, variant, size, isActive, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? React.Fragment : "button"
-    const childProps = asChild ? props.children.props : {}
+  ({ className, variant, size, isActive, asChild = false, ...props }) => {
+    // Choose the component to render, either 'button' or 'Fragment'
+    const Comp = asChild ? React.Fragment : "button";
 
+    // Extract childProps safely if asChild is true
+    const childProps = asChild && React.isValidElement(props.children)
+      ? (props.children as React.ReactElement).props
+      : {};
+
+    // Ensure childProps is an object, and filter props only if valid
+    const safeChildProps = typeof childProps === 'object' ? childProps : {};
+
+    // If asChild is true, we shouldn't apply ref to React.Fragment
+    if (asChild) {
+      return (
+        <Comp
+          className={cn(sidebarMenuButtonVariants({ variant, size, isActive, className }))}
+          {...props} // Spread the props
+          {...safeChildProps} // Spread the childProps safely
+        >
+          {props.children}
+        </Comp>
+      );
+    }
+
+    // If asChild is false, use 'button' and apply ref correctly
     return (
       <Comp
-        ref={ref}
+      
         className={cn(sidebarMenuButtonVariants({ variant, size, isActive, className }))}
-        {...props}
-        {...childProps}
+        {...props} // Spread the props
+        {...safeChildProps} // Spread the childProps safely
       >
         {props.children}
       </Comp>
-    )
-  },
-)
+    );
+  }
+);
+
 SidebarMenuButton.displayName = "SidebarMenuButton"
 
 const SidebarMenuSub = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
@@ -172,22 +194,45 @@ interface SidebarMenuSubButtonProps extends React.ButtonHTMLAttributes<HTMLButto
 }
 
 const SidebarMenuSubButton = React.forwardRef<HTMLButtonElement, SidebarMenuSubButtonProps>(
-  ({ className, variant, size, isActive, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? React.Fragment : "button"
-    const childProps = asChild ? props.children.props : {}
+  ({ className, variant, size, isActive, asChild = false, ...props }) => {
+    // Choose the component to render
+    const Comp = asChild ? React.Fragment : "button";
+    
+    // Only extract childProps if it's a valid React element and ensure it's an object
+    const childProps = asChild && React.isValidElement(props.children)
+      ? (props.children as React.ReactElement).props
+      : {};
 
+    // Ensure that childProps is an object
+    const safeChildProps = typeof childProps === 'object' ? childProps : {};
+
+    // If asChild is true, we shouldn't pass the ref to React.Fragment.
+    if (asChild) {
+      return (
+        <Comp
+          className={cn(sidebarMenuSubButtonVariants({ variant, size, isActive, className }))}
+          {...props} // Spread props only if they're valid objects
+          {...safeChildProps} // Ensure childProps is an object
+        >
+          {props.children}
+        </Comp>
+      );
+    }
+
+    // If asChild is false, we can safely apply the ref to the button element
     return (
       <Comp
-        ref={ref}
+   
         className={cn(sidebarMenuSubButtonVariants({ variant, size, isActive, className }))}
-        {...props}
-        {...childProps}
+        {...props} // Spread props only if they're valid objects
+        {...safeChildProps} // Ensure childProps is an object
       >
         {props.children}
       </Comp>
-    )
-  },
-)
+    );
+  }
+);
+
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 
 const SidebarRail = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(

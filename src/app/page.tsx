@@ -40,7 +40,7 @@ export default function Home() {
 
       const botMsg = { id: messages.length + 2, text: aiReply, sender: "bot" };
       setMessages((prev) => [...prev, botMsg]);
-    } catch (err) {
+    } catch {
       const errorMsg = { id: messages.length + 2, text: "Oops! Something went wrong.", sender: "bot" };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
